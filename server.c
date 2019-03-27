@@ -100,15 +100,22 @@ int main(int argc, char const *argv[]) {
 	mpz_init_set_str(e, "65537", 10);                                    //Public Key
 	mpz_init_set_str(d, "5617843187844953170308463622230283376298685", 10); //Private Key
 
-	//Call function to generate a 256 bit AES key
+	//Call function to generate a 128 bit AES key
 	generateKey(AES_key_serv);
 	printf("\nEncryption key creation complete. The key will now be sent encrypted by RSA.");
 	//Place AES_key_serv into ptext, encrypt into ctext
-	gmpz_export(AES_key_serv, NULL, 1, 1, 0, 0, ptext);
-	mpz_powm(ptext, ctext, d, n);
-	
-	//Send encrypted ctext(AES key) to client
-	send(new_socket, ctext, sizeof(ctext), 0);
+	mpz_import(ptext, sizeof(AES_key_serv), 1, 1, 0, 0, AES_key_serv);
+	mpz_powm(ctext, ptext, d, n);
+
+	//Export ctext into buffer to send over the netwrok
+	gmpz_export(buffer, NULL, 1, 1, 0, 0, ctext);
+
+	//Send encrypted buffer(ctext) to client, Reset buffer
+	send(new_socket, buffer, sizeof(buffer), 0);
+	memset(&buffer, '0', sizeof(buffer));
+
+	printf("\nEncryption key has been sent.");
+	printf("\nWaiting on client to send a message.");
 //*************************************************************************AES Encrytped Message Exchange***************************************************
 	//Read in Client  AES encrypted message
 	read(new_socket, buffer, 2048);
@@ -117,7 +124,9 @@ int main(int argc, char const *argv[]) {
 
 
 
-     
+
+
+
     printf("Acme Corporation AES Decryptor System\n");
     
     uint8_t in[]  = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -188,7 +197,7 @@ unsigned char buf[16];
 	int i;
 	srand(time(NULL));
 		for (i = 0; i < sizeof(buf); i++) {
-			buf[i] = rand() % 256;
+			buf[i] = rand() % 128;
 		}
 }
 

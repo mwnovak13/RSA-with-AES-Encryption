@@ -32,7 +32,7 @@ int main(void)
     return 0;
 }
 
-
+/*
 void readCipherText(uint8_t * ciph) {
     FILE *fp;
     fp = fopen("ciphertext.dat", "rb");
@@ -51,5 +51,5 @@ void writePlainText(uint8_t * ctxt) {
   
     fclose(fp);
 }
-
+*/
 
