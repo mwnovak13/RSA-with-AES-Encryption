@@ -8,7 +8,7 @@
 #include <gmp.h>
 #include <stdint.h>
 #include "aes_e.h"
-
+#include "aes_d.h"
 
 
 //Define Constance "PORT" on port 5000
@@ -112,7 +112,28 @@ int main(int argc, char const *argv[]) {
 //*************************************************************************AES Encrytped Message Exchange***************************************************
 	//Read in Client  AES encrypted message
 	read(new_socket, buffer, 2048);
+	//Convert buffer into ctext
+	mpz_import(ctext, sizeof(buffer), 1, 1, 0, 0, buffer);
 
+
+
+     
+    printf("Acme Corporation AES Decryptor System\n");
+    
+    uint8_t in[]  = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    
+    readCipherText(in);
+    
+    struct AES_ctx ctx;
+
+    AES_init_ctx(&ctx, ctext);
+    
+    AES_decrypt(&ctx, ptext);    
+    
+    writePlainText(in);
+    
+    printf("Decryption is complete.\n");
+    
 
 
 
@@ -128,8 +149,7 @@ int main(int argc, char const *argv[]) {
 
 
 //********************************************************************************************************************************************************
-	//Convert buffer into ctext
-	mpz_import(ctext, sizeof(AES_key_serv), 1, 1, 0, 0, AES_key_serv);
+	
 	//Decrypt ctext into ptext
 	mpz_powm(ptext, ctext, d, n);
 	//Convert ptext into AES_key
