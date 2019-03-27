@@ -43,8 +43,8 @@ int main(int argc, char const *argv[]) {
 	//Arrys of 2048 bytes, to store message data
 	char buffer[2048];
 	char AES_key_serv[2048];
-	char AES_keyDC[2048];
-	char Client_mess;
+	//char AES_keyDC[2048];
+	//char Client_mess;
 
 	//Greeting message
 	char *greeting = "This is a message from the server: I am ready to start the cryptographic handshake";
@@ -78,13 +78,20 @@ int main(int argc, char const *argv[]) {
 		perror("accept failed");
 		exit(EXIT_FAILURE);
 	}
-
+	//Reads in message from client
 	read(new_socket, buffer, 2048);
-
+	//Print out client message, Rest buffer
 	printf("%s\n", buffer);
-
+	memset(&buffer, '0', sizeof(buffer));
+	//Send reply (greeting)
 	send(new_socket, greeting, strlen(greeting), 0);
-//***********************************************************************************************************************************
+	//Read in client message, Reset buffer
+	read(new_socket, buffer, 2048);
+	memset(&buffer, '0', sizeof(buffer));
+	//Print out client message again
+	printf("%s\n", buffer);
+	printf("Lets begin the key exchange!\n");
+	//******************************************************************RSA_KEY_EXCHANGE************************************************************
 	//Initilizing ptext, ctext
 	mpz_init(ptext);
 	mpz_init(ctext);
@@ -93,8 +100,33 @@ int main(int argc, char const *argv[]) {
 	mpz_init_set_str(e, "65537", 10);                                    //Public Key
 	mpz_init_set_str(d, "5617843187844953170308463622230283376298685", 10); //Private Key
 
-	//Read in AES_key
-	read(new_socket, AES_key_serv, 2048);
+	//Call function to generate a 256 bit AES key
+	generateKey(AES_key_serv);
+	printf("\nEncryption key creation complete. The key will now be sent encrypted by RSA.");
+	//Place AES_key_serv into ptext, encrypt into ctext
+	gmpz_export(AES_key_serv, NULL, 1, 1, 0, 0, ptext);
+	mpz_powm(ptext, ctext, d, n);
+	
+	//Send encrypted ctext(AES key) to client
+	send(new_socket, ctext, sizeof(ctext), 0);
+	
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+//***********************************************************************************************************************************
+	
 	//Convert buffer into ctext
 	mpz_import(ctext, sizeof(AES_key_serv), 1, 1, 0, 0, AES_key_serv);
 	//Decrypt ctext into ptext
@@ -120,20 +152,23 @@ int main(int argc, char const *argv[]) {
 	
 	fgets(Serv_mess, sizeof(Serv_mess), stdin);
 
-	//Cannot get this to work
-	struct AES_ctx ctx = sizeof(Serv_mess);
-
-	AES_init_ctx(&ctx, AES_keyDC);
-
-	AES_encrypt(&ctx, Serv_mess);
-
-	printf(Serv_mess);
+	
 
 	printf("Encryption is complete.\n");
 
 	send(new_socket, Serv_mess, strlen(Serv_mess), 0);
 
 	return 0;
+}
+
+void generateKey{
+
+unsigned char buf[16];
+	int i;
+	srand(time(NULL));
+		for (i = 0; i < sizeof(buf); i++) {
+			buf[i] = rand() % 256;
+		}
 }
 
 

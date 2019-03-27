@@ -68,12 +68,9 @@ int main(int argc, char const *argv[]) {
     printf("%s\n", buffer); 
 	memset(&buffer, '0', sizeof(buffer));
 //*********************************************************************************************************
-	
-	uint8_t key[16] = { (uint8_t)0x2b, (uint8_t)0x7e, (uint8_t)0x15, (uint8_t)0x16, (uint8_t)0x28, (uint8_t)0xae, (uint8_t)0xd2, (uint8_t)0xa6, (uint8_t)0xab, (uint8_t)0xf7, (uint8_t)0x15, (uint8_t)0x88, (uint8_t)0x09, (uint8_t)0xcf, (uint8_t)0x4f, (uint8_t)0x3c };
-	
-	printf("Lets begin the key exchange!\n");
 
-	printf("\nEncryption key creation complete. The key will now be sent encrypted by RSA.");
+	
+
 
 //*********************************************************************************************************	
 	//Initilize ptext, ctext
@@ -82,7 +79,7 @@ int main(int argc, char const *argv[]) {
 
 
 	//We receive the error incomplatable pointer type
-	//gmpz_export(AES_key, NULL, 1, 1, 0, 0, key);
+	gmpz_export(AES_key, NULL, 1, 1, 0, 0, key);
 
 	//mpz_import(ctext, 16, 1, 1, 0, 0, buffer);
 	mpz_init_set_str(n, "95163118457906153499715750847001433441357", 10);//Public Key
