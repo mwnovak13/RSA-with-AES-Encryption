@@ -10,12 +10,6 @@
 
 #define PORT 5000 
 
-mpz_t ptext;
-mpz_t ctext;
-mpz_t n;
-mpz_t e;
-
-
 void mpz_import(mpz_t rop, size_t count, int order, size_t size, int endian, size_t nails, const void *op){
 
 }
@@ -24,7 +18,6 @@ void mpz_import(mpz_t rop, size_t count, int order, size_t size, int endian, siz
 void gmpz_export(void *rop, size_t *countp, int order, size_t size, int endian, size_t nails, const mpz_t op){
 
 }
-
 
 int main(int argc, char const *argv[]) { 
     printf("This is the client program.\n");
@@ -67,36 +60,54 @@ int main(int argc, char const *argv[]) {
 	//display message from server
     printf("%s\n", buffer); 
 	memset(&buffer, '0', sizeof(buffer));
-//*********************************************************************************************************
-
-	
-
-
-//*********************************************************************************************************	
-	//Initilize ptext, ctext
+//*************************************************************Read In RSA Encrypted AES Key***************************************************************
+	char AES_key_client[];
+	//Initilizing ptext, ctext
 	mpz_init(ptext);
 	mpz_init(ctext);
-
-
-	//We receive the error incomplatable pointer type
-	gmpz_export(AES_key, NULL, 1, 1, 0, 0, key);
-
-	//mpz_import(ctext, 16, 1, 1, 0, 0, buffer);
+	//Initilizing and setting n, e. We couldn't figure out how to pass the keys.
 	mpz_init_set_str(n, "95163118457906153499715750847001433441357", 10);//Public Key
 	mpz_init_set_str(e, "65537", 10);                                    //Public Key
 
-	mpz_set_str(ptext, key, sizeof(key);
-	gmp_printf(key);
+	//Read in server RSA encrypted message with AES key inside, print out buffer
+	read(sock, buffer, sizeof(buffer);
+	printf("%s\n", buffer);
+
+	//Import buffer into ctext
+	mpz_import(ctext, sizeof(buffer), 1, 1, 0, 0, buffer);
+	
+	//Decrypt ctext into ptext
+	mpz_powm(ptext, ctext, e, n);
+
+	//Export ptext into AES_key_client, print out AES_key_client
+	gmpz_export(AES_key_client, NULL, 1, 1, 0, 0, ptext);
+	printf("%s\n", AES_key_client);
+	
+
+
+//*********************************************************************************************************************************************************	
+	//Initilize ptext, ctext
+	//mpz_init(ptext);
+	//mpz_init(ctext);
+
+
+	//We receive the error incomplatable pointer type
+	//gmpz_export(AES_key, NULL, 1, 1, 0, 0, key);
+
+	//mpz_import(ctext, 16, 1, 1, 0, 0, buffer);
+
+	//mpz_set_str(ptext, key, sizeof(key);
+	//gmp_printf(key);
 
 	//Encrypting ptext into ctext, encrypting using Public key(e) and Public key (n)
-	mpz_powm(ctext, ptext, e, n);
+	//mpz_powm(ctext, ptext, e, n);
 	//Placing ctext into AES_key
-	gmpz_export(buffer, NULL, 1, 1, 0, 0, ctext);
+	//gmpz_export(buffer, NULL, 1, 1, 0, 0, ctext);
 	//Send buffer (Encrypted AES key) to server.c
-	send(sock, buffer, sizeof(buffer), 0);
+	//send(sock, buffer, sizeof(buffer), 0);
 
-	printf("\nEncryption key sent.");
-	gmp_printf(ctext);
+	//printf("\nEncryption key sent.");
+	//gmp_printf(ctext);
 
 	//mpz_import(ctext, 16, 1, 1, 0, 0, buffer);
 	//mpz_powm(ctext, ptext, e, n);

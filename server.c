@@ -117,6 +117,9 @@ int main(int argc, char const *argv[]) {
 	printf("\nEncryption key has been sent.");
 	printf("\nWaiting on client to send a message.");
 //*************************************************************************AES Encrytped Message Exchange***************************************************
+	
+	/*commenting this out for testing 3/27 @6:20pm
+
 	//Read in Client  AES encrypted message
 	read(new_socket, buffer, 2048);
 	//Convert buffer into ctext
@@ -187,6 +190,8 @@ int main(int argc, char const *argv[]) {
 	printf("Encryption is complete.\n");
 
 	send(new_socket, Serv_mess, strlen(Serv_mess), 0);
+
+	*/
 
 	return 0;
 }
