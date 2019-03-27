@@ -85,13 +85,13 @@ int main(int argc, char const *argv[]) {
 	memset(&buffer, '0', sizeof(buffer));
 	//Send reply (greeting)
 	send(new_socket, greeting, strlen(greeting), 0);
-	//Read in client message, Reset buffer
+	//Read in client message
 	read(new_socket, buffer, 2048);
-	memset(&buffer, '0', sizeof(buffer));
-	//Print out client message again
+	//Print out client message again, Reset buffer
 	printf("%s\n", buffer);
+	memset(&buffer, '0', sizeof(buffer));
 	printf("Lets begin the key exchange!\n");
-	//******************************************************************RSA_KEY_EXCHANGE************************************************************
+	//******************************************************************RSA Encryption of AES key Exchange************************************************************
 	//Initilizing ptext, ctext
 	mpz_init(ptext);
 	mpz_init(ctext);
@@ -109,14 +109,15 @@ int main(int argc, char const *argv[]) {
 	
 	//Send encrypted ctext(AES key) to client
 	send(new_socket, ctext, sizeof(ctext), 0);
-	
+//*************************************************************************AES Encrytped Message Exchange***************************************************
+	//Read in Client  AES encrypted message
+	read(new_socket, buffer, 2048);
 
 
 
 
 
 
-	
 
 
 
@@ -125,8 +126,8 @@ int main(int argc, char const *argv[]) {
 
 
 
-//***********************************************************************************************************************************
-	
+
+//********************************************************************************************************************************************************
 	//Convert buffer into ctext
 	mpz_import(ctext, sizeof(AES_key_serv), 1, 1, 0, 0, AES_key_serv);
 	//Decrypt ctext into ptext
