@@ -56,12 +56,19 @@ int main(int argc, char const *argv[]) {
 	//send message
 	send(sock, message, strlen(message), 0 ); 
 	//Reads in the message sent back.
-    read(sock, buffer, 2048); 
+    read(sock, buffer, sizeof(buffer)); 
 	//display message from server
     printf("%s\n", buffer); 
 	memset(&buffer, '0', sizeof(buffer));
 //*************************************************************Read In RSA Encrypted AES Key***************************************************************
-	char AES_key_client[];
+	char AES_key_client[2048];
+
+	mpz_t ptext;
+	mpz_t ctext;
+	mpz_t n;
+	mpz_t e;
+	mpz_t d;
+
 	//Initilizing ptext, ctext
 	mpz_init(ptext);
 	mpz_init(ctext);
@@ -69,9 +76,8 @@ int main(int argc, char const *argv[]) {
 	mpz_init_set_str(n, "95163118457906153499715750847001433441357", 10);//Public Key
 	mpz_init_set_str(e, "65537", 10);                                    //Public Key
 
-	//Read in server RSA encrypted message with AES key inside, print out buffer
-	read(sock, buffer, sizeof(buffer);
-	printf("%s\n", buffer);
+	//Read in server RSA encrypted message with AES key inside
+	read(sock, buffer, sizeof(buffer));
 
 	//Import buffer into ctext
 	mpz_import(ctext, sizeof(buffer), 1, 1, 0, 0, buffer);
@@ -81,7 +87,8 @@ int main(int argc, char const *argv[]) {
 
 	//Export ptext into AES_key_client, print out AES_key_client
 	gmpz_export(AES_key_client, NULL, 1, 1, 0, 0, ptext);
-	printf("%s\n", AES_key_client);
+	printf("%s\n""The AES key is: ");
+	gmp_printf(AES_key_client);
 	
 
 

@@ -8,17 +8,12 @@
 #include <gmp.h>
 #include <stdint.h>
 #include "aes_e.h"
-#include "aes_d.h"
+#include <time.h>
+//#include "aes_d.h"
 
 
 //Define Constance "PORT" on port 5000
 #define PORT 5000
-
-mpz_t ptext;
-mpz_t ctext;
-mpz_t n;
-mpz_t e;
-mpz_t d;
 
 void mpz_import(mpz_t rop, size_t count, int order, size_t size, int endian, size_t nails, const void *op) {
 
@@ -42,12 +37,11 @@ int main(int argc, char const *argv[]) {
 	int addrlen = sizeof(address);
 	//Arrys of 2048 bytes, to store message data
 	char buffer[2048];
-	char AES_key_serv[2048];
-	//char AES_keyDC[2048];
-	//char Client_mess;
+	char AES_key_serv[16];
+
 
 	//Greeting message
-	char *greeting = "This is a message from the server: I am ready to start the cryptographic handshake";
+	char *greeting = "This is a message from the server: I am ready to start the cryptographic handshake.\n";
 	//Create server side socket into existance: AF_INET = IPv4 socket, SOCK_STREAM = TCP connection
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
 		perror("socket failed");
@@ -78,6 +72,18 @@ int main(int argc, char const *argv[]) {
 		perror("accept failed");
 		exit(EXIT_FAILURE);
 	}
+
+	void generateKey(){
+
+	unsigned char buf[16];
+		int i;
+		srand(time(NULL));
+		for (i = 0; i < sizeof(buf); i++) {
+			buf[i] = rand() % 128;
+		}
+	}
+	
+
 	//Reads in message from client
 	read(new_socket, buffer, 2048);
 	//Print out client message, Rest buffer
@@ -86,12 +92,23 @@ int main(int argc, char const *argv[]) {
 	//Send reply (greeting)
 	send(new_socket, greeting, strlen(greeting), 0);
 	//Read in client message
+	
+
+	/*
 	read(new_socket, buffer, 2048);
 	//Print out client message again, Reset buffer
 	printf("%s\n", buffer);
 	memset(&buffer, '0', sizeof(buffer));
+
+	*/
 	printf("Lets begin the key exchange!\n");
 	//******************************************************************RSA Encryption of AES key Exchange************************************************************
+	mpz_t ptext;
+	mpz_t ctext;
+	mpz_t n;
+	mpz_t e;
+	mpz_t d; 
+
 	//Initilizing ptext, ctext
 	mpz_init(ptext);
 	mpz_init(ctext);
@@ -102,6 +119,7 @@ int main(int argc, char const *argv[]) {
 
 	//Call function to generate a 128 bit AES key
 	generateKey(AES_key_serv);
+	gmp_printf("\n", AES_key_serv, "\n");
 	printf("\nEncryption key creation complete. The key will now be sent encrypted by RSA.");
 	//Place AES_key_serv into ptext, encrypt into ctext
 	mpz_import(ptext, sizeof(AES_key_serv), 1, 1, 0, 0, AES_key_serv);
@@ -109,7 +127,7 @@ int main(int argc, char const *argv[]) {
 
 	//Export ctext into buffer to send over the netwrok
 	gmpz_export(buffer, NULL, 1, 1, 0, 0, ctext);
-
+	gmp_printf(buffer);
 	//Send encrypted buffer(ctext) to client, Reset buffer
 	send(new_socket, buffer, sizeof(buffer), 0);
 	memset(&buffer, '0', sizeof(buffer));
@@ -196,14 +214,5 @@ int main(int argc, char const *argv[]) {
 	return 0;
 }
 
-void generateKey{
-
-unsigned char buf[16];
-	int i;
-	srand(time(NULL));
-		for (i = 0; i < sizeof(buf); i++) {
-			buf[i] = rand() % 128;
-		}
-}
 
 
