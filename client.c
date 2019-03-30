@@ -61,13 +61,13 @@ int main(int argc, char const *argv[]) {
     printf("%s\n", buffer); 
 	memset(&buffer, '0', sizeof(buffer));
 //*************************************************************Read In RSA Encrypted AES Key***************************************************************
-	char AES_key_client[2048];
+	uint8_t AES_key_client[16] = { (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65, (uint8_t)0x65 };
 
 	mpz_t ptext;
 	mpz_t ctext;
 	mpz_t n;
 	mpz_t e;
-	mpz_t d;
+	
 
 	//Initilizing ptext, ctext
 	mpz_init(ptext);
@@ -76,6 +76,29 @@ int main(int argc, char const *argv[]) {
 	mpz_init_set_str(n, "95163118457906153499715750847001433441357", 10);//Public Key
 	mpz_init_set_str(e, "65537", 10);                                    //Public Key
 
+
+	//Show AES key 
+	gmp_printf("\n", AES_key_client, "\n");
+	printf("\n The encryption key will now be sent encrypted by RSA.");
+	//Place AES_key_client into ptext, encrypt into ctext
+	mpz_import(ptext, sizeof(AES_key_client), 1, 1, 0, 0, AES_key_client);
+	mpz_powm(ctext, ptext, e, n);
+
+	//Export ctext into buffer to send over the netwrok
+	gmpz_export(buffer, NULL, 1, 1, 0, 0, ctext);
+	gmp_printf(buffer);
+	//Send encrypted buffer(ctext) to server, Reset buffer
+	send(new_socket, buffer, sizeof(buffer), 0);
+	memset(&buffer, '0', sizeof(buffer));
+
+	printf("\nEncryption key has been sent.");
+	printf("\nWaiting on server to send a message.");
+
+
+
+
+
+	/*
 	//Read in server RSA encrypted message with AES key inside
 	read(sock, buffer, sizeof(buffer));
 
@@ -90,6 +113,7 @@ int main(int argc, char const *argv[]) {
 	printf("%s\n""The AES key is: ");
 	gmp_printf(AES_key_client);
 	
+	*/
 
 
 //*********************************************************************************************************************************************************	

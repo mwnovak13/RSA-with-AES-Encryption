@@ -37,7 +37,7 @@ int main(int argc, char const *argv[]) {
 	int addrlen = sizeof(address);
 	//Arrys of 2048 bytes, to store message data
 	char buffer[2048];
-	char AES_key_serv[16];
+	char AES_key_server[2048];
 
 
 	//Greeting message
@@ -71,16 +71,6 @@ int main(int argc, char const *argv[]) {
 	if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t*)&addrlen))<0) {
 		perror("accept failed");
 		exit(EXIT_FAILURE);
-	}
-
-	void generateKey(){
-
-	unsigned char buf[16];
-		int i;
-		srand(time(NULL));
-		for (i = 0; i < sizeof(buf); i++) {
-			buf[i] = rand() % 128;
-		}
 	}
 	
 
@@ -117,7 +107,30 @@ int main(int argc, char const *argv[]) {
 	mpz_init_set_str(e, "65537", 10);                                    //Public Key
 	mpz_init_set_str(d, "5617843187844953170308463622230283376298685", 10); //Private Key
 
-	//Call function to generate a 128 bit AES key
+
+
+	//Read in server RSA encrypted message with AES key inside
+	read(sock, buffer, sizeof(buffer));
+
+	//Import buffer into ctext
+	mpz_import(ctext, sizeof(buffer), 1, 1, 0, 0, buffer);
+
+	//Decrypt ctext into ptext
+	mpz_powm(ptext, ctext, e, n);
+
+	//Export ptext into AES_key_server, print out AES_key_server
+	gmpz_export(AES_key_server, NULL, 1, 1, 0, 0, ptext);
+	printf("%s\n""The AES key is: ");
+	gmp_printf(AES_key_server);
+
+
+
+
+
+
+	
+	/*																		
+	//Call function to generate a 16 bit AES key
 	generateKey(AES_key_serv);
 	gmp_printf("\n", AES_key_serv, "\n");
 	printf("\nEncryption key creation complete. The key will now be sent encrypted by RSA.");
@@ -134,6 +147,8 @@ int main(int argc, char const *argv[]) {
 
 	printf("\nEncryption key has been sent.");
 	printf("\nWaiting on client to send a message.");
+
+	*/
 //*************************************************************************AES Encrytped Message Exchange***************************************************
 	
 	/*commenting this out for testing 3/27 @6:20pm
@@ -143,9 +158,7 @@ int main(int argc, char const *argv[]) {
 	//Convert buffer into ctext
 	mpz_import(ctext, sizeof(buffer), 1, 1, 0, 0, buffer);
 
-
-
-
+	
 
 
     printf("Acme Corporation AES Decryptor System\n");
@@ -165,14 +178,7 @@ int main(int argc, char const *argv[]) {
     printf("Decryption is complete.\n");
     
 
-
-
-
-
-
-
-
-
+	
 
 
 
